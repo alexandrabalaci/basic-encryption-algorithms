@@ -1,0 +1,60 @@
+Balaci Alexandra - Daniela, 323CD
+
+OTP:
+Pentru realizarea operatiei de xor intre fiecare element al cheii si al sirului, se vor stoca 
+bitii acestora, pe rand,  in subregistrii lui EAX ( respectiv AH pentru cheie si AL pentru 
+plaintext), incepand cu penumimul (ultimul fiind bit ul null). Se va realiza apoi operatia de
+xor intre AL si Ah, se va muta rezultatul in registrul EDX si se va decrementa registrul
+ECX, folosit ca si contor, cu 1. Se sare inapoi la inceputul loop-ului si se verfica daca
+ECX este egal cu 0. In caz afirmativ se incheie programul, in caz negativ se continua.
+
+Caesar:
+Se muta continutul registrului EDI in registrul EBX pentru a nu corupe continutul lui EDI
+in cadrul operatiei urmatoare. Se scade succesiv 26 din EBX  pana cand valoarea acestuia 
+scade sub 26 (fiind doar 26 de litere in alfabet, numerotate de la pozitia 0).  Aceasta operatie 
+calculeaza numarul real de pozitii cu care trebuie deplasate literele. Se muta in AL bitul
+de la penultima pozitie (ultima fiind bit ul null) si se incepe o serie de comparatii menite sa 
+determine in ce situatia se afla caracterul primit ca input ( conform pozitiei din tabela ASCII):
+- mai mare decat 'z', caz de caracter special, 
+-mai mic decat 'A', caz de caracter special
+-mai mic decat 'a', sare la starea intermediara unde este comparat intai cu Z. daca este mai mare,
+este caz de caracter special, daca este mai mic sau egal trece la found letter
+
+Dupa ce s-a determinat tipul caracterului, una din doua lucruri se pot intampla: 
+-daca este litera, se muta in registrul EDI valoarea lui EAX si se adauga la aceasta cheia pentru a 
+determina daca trebuie sa se reia alfabetul de la inceput in timpul shiftarii sau nu. (Adica daca 
+depasesc valoarei literei Z, respectiv z , pe tabela ascii dupa adaugarea valorii cheii)
+Daca nu, se sare la starea Compute care calculeaza valoarea finala si apoi depunde in registrul EDX
+rezultatul. Daca se reia alfabetul, pozitia fiecarei litere este recalculata dupa formula 
+CH - Z (z, dupa caz) + A ( a dupa caz) - 1, un de CH este litera. Se trece apoi in starea Compute 
+unde se adauga cheia si se sare la output. Daca caracterul gasit este special, se sare direct la
+add_output, intrucat acestea nu trebuie shiftate.
+Aceste calcule s-au realizat pentru a pastra literele mici mici si majusculele majuscule.
+Se deccrementeaza ECX si se sare la inceput.
+
+Vigenere:
+Foloseste mai mult sau mai putin aceeasi logica de la Caesar, fara a mai exista nevoia unui modulo, 
+cheia fiind reprezentata de litere cu valori de la 0 la 25. Apare insa starea de restart key, pentru a 
+reseta pointerul ce parcurge cheia inapoi la 0 cand ajunge la ultimul caracter din aceasta.
+Se realizeaza aceeasi serie de comparatii si, respectiv, recalculari, pentru a determina pozitia
+fiecarui caracter, si daca este nevoie sau nu sa se reia alfabetul dupa shiftare. Cu mentiunea ca 
+de data aceasta, se porneste de la primul bit, atat al cheii cat si al plaintext, iar EBX
+( utilizat ca pointer al cheii) se incrementeaza doar in cadrul caracterelor care trebuie shiftate
+ ( adica ramane constant cand intalneste non-litere).
+Formula utilizata pentru a calcula pozitia de la 0 la 25 a literei din alfabet a cheii este: CH - A 
+(unde CH este litera)
+
+My strstr:
+Incepem prin a compara primul bit din cheie cu fiecare bit din text. Cand s-a gasit o potrivire,
+salvam pe stiva pozitia la care s-a gasit potrivirea. Incrementam contoarele pentru cheie si text, 
+si verificam sa nu fi ajuns la finalul textului, sau sa fi gasit toata cheia. Daca sunt amandoua false, 
+continuam cu compararea succcesiva a caracterelor din cheie si text, incepand cu prima pozitie 
+dupa pozitia la care am gasit potrivirea, pana cand:
+- se incheie textul si nu s-a gasit cheia, caz in care returnam lungimea lui+1
+- am gasit cheia, caz in care recuperam valoarea de pe stiva a lui EAX si o plasam in registrul edi
+- a aparut o divergenta intre caractere, caz in care resetam EAX si contorul cheii si reluam cu 
+compare_first_byte.
+
+Mentiuni: in cadrul fiecarui exercitiu am realizat cel putin o data operatia de xor intre acelasi 
+registru.
+Aceasta a fost pentru a ne asigura ca registrul a fost, de fiecare data, initializat cu 0.
